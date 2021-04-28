@@ -169,8 +169,10 @@ void StaticLayer::incomingMap(const nav_msgs::OccupancyGridConstPtr& new_map)
 
   ROS_DEBUG("Received a %d X %d map at %f m/pix", size_x, size_y, new_map->info.resolution);
 
+  boost::unique_lock<mutex_t> lock(*getMutex());
   // resize costmap if size, resolution or origin do not match
   Costmap2D* master = layered_costmap_->getCostmap();
+  boost::unique_lock<mutex_t> master_lock(*(master->getMutex()));
   if (!layered_costmap_->isRolling() &&
       (master->getSizeInCellsX() != size_x ||
        master->getSizeInCellsY() != size_y ||
